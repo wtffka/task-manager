@@ -1,6 +1,7 @@
 plugins {
 	id 'org.springframework.boot' version '2.7.0'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'org.liquibase.gradle' version '2.0.3'
 	id 'application'
 	id 'checkstyle'
 	id 'java'
@@ -20,13 +21,43 @@ repositories {
 }
 
 dependencies {
+	implementation 'org.liquibase:liquibase-core'
 	implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	liquibaseRuntime(
+			sourceSets.main.output,
+			'org.liquibase:liquibase-core:4.6.1',
+			'org.liquibase.ext:liquibase-hibernate5:4.5.0',
+			'org.springframework.boot:spring-boot-starter-data-jpa'
+	)
+
+	runtimeOnly (
+			'com.h2database:h2:1.4.200',
+			'org.postgresql:postgresql:42.2.24'
+	)
 }
 
 checkstyle {
 	toolVersion '10.0'
+}
+
+liquibase {
+	activities {
+		main {
+			changeLogFile 'src/main/resources/db/changelog/changelog-master.xml'
+			url 'jdbc:h2:./taskManager'
+			username ''
+			password ''
+			referenceUrl 'hibernate:spring:hexlet.code.model.' +
+					'?dialect=org.hibernate.dialect.H2Dialect' +
+					'&hibernate.physical_naming_strategy=org.springframework.boot.orm.jpa.hibernate.SpringPhysicalNamingStrategy'
+		}
+	}
 }
 
 jacocoTestReport {
@@ -37,6 +68,10 @@ jacocoTestReport {
 
 tasks.named('test') {
 	useJUnitPlatform()
+}
+
+diffChangeLog {
+	dependsOn compileJava
 }
 
 task stage(dependsOn: [clean, installDist])
