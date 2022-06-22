@@ -4,6 +4,7 @@ plugins {
 	id 'application'
 	id 'checkstyle'
 	id 'java'
+	id 'jacoco'
 }
 
 group = 'hexlet.code'
@@ -26,6 +27,12 @@ dependencies {
 
 checkstyle {
 	toolVersion '10.0'
+}
+
+jacocoTestReport {
+	reports {
+		xml.required = true
+	}
 }
 
 tasks.named('test') {
