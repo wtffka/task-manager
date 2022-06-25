@@ -4,9 +4,6 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-.idea
-taskManager.mv.db
-
 
 ### STS ###
 .apt_generated
@@ -38,3 +35,10 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### frontend ###
+node
+frontend/build
+frontend/node_modules
+
+.DS_St
