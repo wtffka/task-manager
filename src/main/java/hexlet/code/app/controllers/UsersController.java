@@ -35,7 +35,7 @@ public class UsersController {
     @Autowired
     private UserServiceImpl userService;
 
-    @GetMapping("/{id}")
+    @GetMapping(ID)
     public User getUser(@PathVariable Long id) {
         return userRepository.findById(id).get();
     }
@@ -58,6 +58,7 @@ public class UsersController {
     }
 
     @DeleteMapping(ID)
+    @PreAuthorize(ONLY_OWNER_BY_ID)
     public String deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
         return "User successfully deleted!";

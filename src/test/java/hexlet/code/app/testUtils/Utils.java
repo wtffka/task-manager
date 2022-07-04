@@ -3,6 +3,7 @@ package hexlet.code.app.testUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import hexlet.code.app.dto.LoginDto;
+import hexlet.code.app.dto.TaskStatusDto;
 import hexlet.code.app.utils.JWTHelper;
 import hexlet.code.app.dto.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,11 +15,12 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 
 import java.util.Map;
 
+import static hexlet.code.app.utils.AppConstants.TEST_USERNAME;
+import static hexlet.code.app.utils.AppConstants.TEST_PASSWORD;
 import static hexlet.code.app.utils.AppConstants.BASE_URL_FOR_USER_CONTROLLER;
+import static hexlet.code.app.utils.AppConstants.BASE_URL_FOR_TASK_STATUSES_CONTROLLER;
 import static hexlet.code.app.utils.AppConstants.BASE_URL_FOR_USER_AUTH;
 import static hexlet.code.app.utils.AppConstants.MAPPER;
-import static hexlet.code.app.utils.AppConstants.TEST_PASSWORD;
-import static hexlet.code.app.utils.AppConstants.TEST_USERNAME;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
@@ -71,6 +73,19 @@ public class Utils {
         return perform(request);
     }
 
+    public ResultActions regTaskStatus(final TaskStatusDto taskStatusDto) throws Exception {
+        final MockHttpServletRequestBuilder request = post(BASE_URL_FOR_TASK_STATUSES_CONTROLLER)
+                .content(toJson(taskStatusDto))
+                .contentType(MediaType.APPLICATION_JSON);
+        return perform(request, TEST_USERNAME);
+    }
+    public ResultActions regTaskStatusIncorrect(final TaskStatusDto taskStatusDto) throws Exception {
+        final MockHttpServletRequestBuilder request = post(BASE_URL_FOR_TASK_STATUSES_CONTROLLER)
+                .content(toJson(taskStatusDto))
+                .contentType(MediaType.APPLICATION_JSON);
+        return perform(request);
+    }
+
     public ResultActions authUser(final LoginDto loginDto) throws Exception {
         final MockHttpServletRequestBuilder request = post(BASE_URL_FOR_USER_AUTH)
                 .content(toJson(loginDto))
@@ -96,4 +111,5 @@ public class Utils {
     public static <T> T fromJson(final String json, final TypeReference<T> type) throws JsonProcessingException {
         return MAPPER.findAndRegisterModules().readValue(json, type);
     }
+
 }
