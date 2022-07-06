@@ -5,6 +5,7 @@ import hexlet.code.app.model.User;
 import hexlet.code.app.repository.UserRepository;
 import hexlet.code.app.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -63,5 +64,15 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 user.getPassword(),
                 DEFAULT_AUTHORITIES
         );
+    }
+
+    @Override
+    public String getCurrentUserName() {
+        return SecurityContextHolder.getContext().getAuthentication().getName();
+    }
+
+    @Override
+    public User getCurrentUser() {
+        return userRepository.findByEmail(getCurrentUserName()).get();
     }
 }

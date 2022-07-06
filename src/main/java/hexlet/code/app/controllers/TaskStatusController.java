@@ -28,7 +28,7 @@ public class TaskStatusController {
     private TaskStatusRepository taskStatusRepository;
 
     @Autowired
-    private TaskStatusServiceImpl taskStatusServiceImpl;
+    private TaskStatusServiceImpl taskStatusService;
 
     @GetMapping(ID)
     public TaskStatus getTaskStatus(@PathVariable Long id) {
@@ -42,16 +42,16 @@ public class TaskStatusController {
 
     @PostMapping("")
     public TaskStatus createTaskStatus(@RequestBody @Valid TaskStatusDto taskStatusDto) {
-        return taskStatusServiceImpl.createTaskStatus(taskStatusDto);
+        return taskStatusService.createTaskStatus(taskStatusDto);
     }
 
     @PutMapping(ID)
     public TaskStatus updateTaskStatus(@RequestBody @Valid TaskStatusDto taskStatusDto, @PathVariable Long id) {
-        return taskStatusServiceImpl.updateTaskStatus(taskStatusDto, id);
+        return taskStatusService.updateTaskStatus(taskStatusDto, id);
     }
 
     @DeleteMapping(ID)
     public void deleteTaskStatus(@PathVariable Long id) {
-        taskStatusServiceImpl.deleteTaskStatus(id);
+        taskStatusService.deleteTaskStatus(id);
     }
 }
