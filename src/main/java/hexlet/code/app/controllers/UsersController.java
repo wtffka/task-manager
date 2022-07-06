@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static hexlet.code.app.utils.AppConstants.BASE_URL_FOR_USER_CONTROLLER;
 import static hexlet.code.app.utils.AppConstants.ID;
@@ -37,18 +38,17 @@ public class UsersController {
 
     @GetMapping(ID)
     public User getUser(@PathVariable Long id) {
-        return userRepository.findById(id).get();
+        return userRepository.findById(id).orElseThrow(() -> new NoSuchElementException("User with that ID not found"));
     }
 
-    @GetMapping("")
+    @GetMapping
     public List<User> getUsers() {
         return userRepository.findAll();
     }
 
-    @PostMapping("")
-    public String registerNew(@RequestBody @Valid UserDto userDto) {
-        userService.createNewUser(userDto);
-        return "OK";
+    @PostMapping
+    public User registerNew(@RequestBody @Valid UserDto userDto) {
+        return userService.createNewUser(userDto);
     }
 
     @PutMapping(ID)

@@ -2,11 +2,12 @@ package hexlet.code.app.testUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import hexlet.code.app.dto.UserDto;
 import hexlet.code.app.dto.LoginDto;
 import hexlet.code.app.dto.TaskDto;
 import hexlet.code.app.dto.TaskStatusDto;
+import hexlet.code.app.dto.LabelDto;
 import hexlet.code.app.utils.JWTHelper;
-import hexlet.code.app.dto.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -18,10 +19,11 @@ import java.util.Map;
 
 import static hexlet.code.app.utils.AppConstants.TEST_USERNAME;
 import static hexlet.code.app.utils.AppConstants.TEST_PASSWORD;
-import static hexlet.code.app.utils.AppConstants.BASE_URL_FOR_TASK_STATUSES_CONTROLLER;
-import static hexlet.code.app.utils.AppConstants.BASE_URL_FOR_TASK_CONTROLLER;
-import static hexlet.code.app.utils.AppConstants.BASE_URL_FOR_USER_CONTROLLER;
 import static hexlet.code.app.utils.AppConstants.BASE_URL_FOR_USER_AUTH;
+import static hexlet.code.app.utils.AppConstants.BASE_URL_FOR_TASK_CONTROLLER;
+import static hexlet.code.app.utils.AppConstants.BASE_URL_FOR_TASK_STATUSES_CONTROLLER;
+import static hexlet.code.app.utils.AppConstants.BASE_URL_FOR_LABEL_CONTROLLER;
+import static hexlet.code.app.utils.AppConstants.BASE_URL_FOR_USER_CONTROLLER;
 import static hexlet.code.app.utils.AppConstants.MAPPER;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -98,6 +100,20 @@ public class Utils {
     public ResultActions regTaskIncorrect(final TaskDto taskDto) throws Exception {
         final MockHttpServletRequestBuilder request = post(BASE_URL_FOR_TASK_CONTROLLER)
                 .content(toJson(taskDto))
+                .contentType(MediaType.APPLICATION_JSON);
+        return perform(request);
+    }
+
+    public ResultActions regLabelPositive(final LabelDto labelDto) throws Exception {
+        final MockHttpServletRequestBuilder request = post(BASE_URL_FOR_LABEL_CONTROLLER)
+                .content(toJson(labelDto))
+                .contentType(MediaType.APPLICATION_JSON);
+        return perform(request, TEST_USERNAME);
+    }
+
+    public ResultActions regLabelNegative(final LabelDto labelDto) throws Exception {
+        final MockHttpServletRequestBuilder request = post(BASE_URL_FOR_LABEL_CONTROLLER)
+                .content(toJson(labelDto))
                 .contentType(MediaType.APPLICATION_JSON);
         return perform(request);
     }

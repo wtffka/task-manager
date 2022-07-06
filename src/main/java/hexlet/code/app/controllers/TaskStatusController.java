@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static hexlet.code.app.utils.AppConstants.BASE_URL_FOR_TASK_STATUSES_CONTROLLER;
 import static hexlet.code.app.utils.AppConstants.ID;
@@ -32,15 +33,16 @@ public class TaskStatusController {
 
     @GetMapping(ID)
     public TaskStatus getTaskStatus(@PathVariable Long id) {
-        return taskStatusRepository.findById(id).get();
+        return taskStatusRepository.findById(id).
+                orElseThrow(() -> new NoSuchElementException("TaskStatus with that ID not found"));
     }
 
-    @GetMapping("")
+    @GetMapping
     public List<TaskStatus> getTaskStatuses() {
         return taskStatusRepository.findAll();
     }
 
-    @PostMapping("")
+    @PostMapping
     public TaskStatus createTaskStatus(@RequestBody @Valid TaskStatusDto taskStatusDto) {
         return taskStatusService.createTaskStatus(taskStatusDto);
     }

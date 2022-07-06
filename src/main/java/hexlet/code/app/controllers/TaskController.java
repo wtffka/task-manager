@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static hexlet.code.app.utils.AppConstants.BASE_URL_FOR_TASK_CONTROLLER;
 import static hexlet.code.app.utils.AppConstants.DELETE_TASK_SUCCESSFUL;
@@ -39,7 +40,7 @@ public class TaskController {
 
     @GetMapping(ID)
     public Task getTask(@PathVariable Long id) {
-        return taskRepository.findById(id).get();
+        return taskRepository.findById(id).orElseThrow(() -> new NoSuchElementException("Task with that ID not found"));
     }
 
     @PostMapping

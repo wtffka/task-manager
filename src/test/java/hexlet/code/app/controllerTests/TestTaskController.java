@@ -43,7 +43,7 @@ public class TestTaskController {
     @Autowired
     private Utils utils;
 
-    private final TaskStatusDto testTaskStatusDto = new TaskStatusDto("New");
+    private static final TaskStatusDto TEST_TASK_STATUS_DTO = new TaskStatusDto("New");
 
     @Autowired
     private TaskStatusRepository taskStatusRepository;
@@ -51,7 +51,7 @@ public class TestTaskController {
     @BeforeEach
     void init() throws Exception {
         utils.regDefaultUser();
-        utils.regTaskStatus(testTaskStatusDto);
+        utils.regTaskStatus(TEST_TASK_STATUS_DTO);
     }
 
     @Test
@@ -63,7 +63,8 @@ public class TestTaskController {
                 "name",
                 "desc",
                 executorId,
-                taskStatusId
+                taskStatusId,
+                null
         ));
 
         Task expectedTask = taskRepository.findAll().get(0);
@@ -90,14 +91,16 @@ public class TestTaskController {
                 "nameOne",
                 "descOne",
                 executorId,
-                taskStatusId
+                taskStatusId,
+                null
         ));
 
         utils.regTask(new TaskDto(
                 "nameTwo",
                 "descTwo",
                 executorId,
-                taskStatusId
+                taskStatusId,
+                null
         ));
 
         assertThat(taskRepository.count()).isEqualTo(2);
@@ -132,7 +135,8 @@ public class TestTaskController {
                 "name",
                 "desc",
                 executorId,
-                taskStatusId
+                taskStatusId,
+                null
         ));
 
         assertThat(taskRepository.count()).isEqualTo(1);
@@ -148,8 +152,8 @@ public class TestTaskController {
                 "name",
                 "desc",
                 executorId,
-                taskStatusId
-
+                taskStatusId,
+                null
         ));
         assertThat(taskRepository.count()).isEqualTo(0);
     }
@@ -163,7 +167,8 @@ public class TestTaskController {
                 "nameOne",
                 "descOne",
                 executorId,
-                taskStatusId
+                taskStatusId,
+                null
         ));
 
         Task expectedTask = taskRepository.findAll().get(0);
@@ -174,7 +179,8 @@ public class TestTaskController {
                         "nameTwo",
                         "descTwo",
                         executorId,
-                        taskStatusId
+                        taskStatusId,
+                        null
                 ))).contentType(MediaType.APPLICATION_JSON);
 
         Task updatedTask = taskRepository.findAll().get(0);
@@ -199,7 +205,8 @@ public class TestTaskController {
                 "nameOne",
                 "descOne",
                 executorId,
-                taskStatusId
+                taskStatusId,
+                null
         ));
 
         Task expectedTask = taskRepository.findAll().get(0);
@@ -210,7 +217,8 @@ public class TestTaskController {
                         "nameTwo",
                         "descTwo",
                         executorId,
-                        taskStatusId
+                        taskStatusId,
+                        null
                 ))).contentType(MediaType.APPLICATION_JSON);
 
         Task updatedTask = taskRepository.findAll().get(0);
@@ -235,7 +243,8 @@ public class TestTaskController {
                 "nameOne",
                 "descOne",
                 executorId,
-                taskStatusId
+                taskStatusId,
+                null
         ));
 
         assertThat(taskRepository.count()).isEqualTo(1);
@@ -263,7 +272,8 @@ public class TestTaskController {
                 "nameOne",
                 "descOne",
                 executorId,
-                taskStatusId
+                taskStatusId,
+                null
         ));
         utils.regUser(new UserDto(
                 "a@b.ru",
