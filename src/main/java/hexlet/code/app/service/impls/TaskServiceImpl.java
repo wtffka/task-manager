@@ -66,7 +66,7 @@ public class TaskServiceImpl implements TaskService {
         task.setTaskStatus(taskStatus);
         task.setName(taskDto.getName());
         task.setAuthor(user);
-        task.setDesc(taskDto.getDesc());
+        task.setDescription(taskDto.getDescription());
         task.setLabels(setLabelList(taskDto.getLabelIds()));
         if (taskDto.getExecutorId() != null) {
             final Long executorId = taskDto.getExecutorId();

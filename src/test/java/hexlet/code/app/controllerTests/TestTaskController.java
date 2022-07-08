@@ -1,5 +1,6 @@
 package hexlet.code.app.controllerTests;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import hexlet.code.app.dto.TaskDto;
 import hexlet.code.app.dto.TaskStatusDto;
 import hexlet.code.app.dto.UserDto;
@@ -15,9 +16,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
+import static hexlet.code.app.testUtils.Utils.fromJson;
 import static hexlet.code.app.testUtils.Utils.toJson;
 import static hexlet.code.app.utils.AppConstants.BASE_URL_FOR_TASK_CONTROLLER;
 import static hexlet.code.app.utils.AppConstants.ID;
@@ -70,7 +75,7 @@ public class TestTaskController {
         Task expectedTask = taskRepository.findAll().get(0);
 
         utils.perform(
-                        get(BASE_URL_FOR_TASK_CONTROLLER + ID, expectedTask.getId()),
+                get(BASE_URL_FOR_TASK_CONTROLLER + ID, expectedTask.getId()),
                         expectedTask.getAuthor().getEmail())
                 .andExpect(status().isOk())
                 .andReturn()
@@ -78,8 +83,49 @@ public class TestTaskController {
 
         assertThat(expectedTask.getName()).isEqualTo("name");
         assertThat(expectedTask.getTaskStatus().getId()).isEqualTo(taskStatusId);
-        assertThat(expectedTask.getDesc()).isEqualTo("desc");
+        assertThat(expectedTask.getDescription()).isEqualTo("desc");
         assertThat(expectedTask.getExecutor().getId()).isEqualTo(executorId);
+    }
+
+    @Test
+    public void getAllTasksQueryDsl() throws Exception {
+        utils.regTaskStatus(new TaskStatusDto("not new"));
+
+        final Long executorId = userRepository.findAll().get(0).getId();
+        final Long taskStatusId = taskStatusRepository.findAll().get(0).getId();
+        final Long taskStatusId2 = taskStatusRepository.findAll().get(1).getId();
+
+        utils.regTask(new TaskDto(
+                "name",
+                "desc",
+                executorId,
+                taskStatusId,
+                null
+        ));
+
+        utils.regTask(new TaskDto(
+                "name2",
+                "desc2",
+                executorId,
+                taskStatusId2,
+                null
+        ));
+
+        String queryDsl = "?taskStatusId=" + taskStatusId + "&executorId=" + executorId;
+        final MockHttpServletResponse response = utils.perform(
+                        get(BASE_URL_FOR_TASK_CONTROLLER + queryDsl), TEST_USERNAME)
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse();
+
+        assertThat(response.getContentAsString()).contains("name");
+        assertThat(response.getContentAsString()).contains("desc");
+        assertThat(response.getContentAsString()).doesNotContain("name2");
+        assertThat(response.getContentAsString()).doesNotContain("desc2");
+        List<Task> tasks = fromJson(response.getContentAsString(), new TypeReference<>() {
+        });
+
+        assertThat(tasks.size()).isEqualTo(1);
     }
 
     @Test
@@ -119,8 +165,8 @@ public class TestTaskController {
         assertThat(expectedTask2.getName()).isEqualTo("nameTwo");
         assertThat(expectedTask1.getTaskStatus().getId()).isEqualTo(taskStatusId);
         assertThat(expectedTask2.getTaskStatus().getId()).isEqualTo(taskStatusId);
-        assertThat(expectedTask1.getDesc()).isEqualTo("descOne");
-        assertThat(expectedTask2.getDesc()).isEqualTo("descTwo");
+        assertThat(expectedTask1.getDescription()).isEqualTo("descOne");
+        assertThat(expectedTask2.getDescription()).isEqualTo("descTwo");
         assertThat(expectedTask1.getExecutor().getId()).isEqualTo(executorId);
         assertThat(expectedTask2.getExecutor().getId()).isEqualTo(executorId);
     }
@@ -192,7 +238,7 @@ public class TestTaskController {
 
         assertThat(updatedTask.getName()).isEqualTo("nameTwo");
         assertThat(updatedTask.getTaskStatus().getId()).isEqualTo(taskStatusId);
-        assertThat(updatedTask.getDesc()).isEqualTo("descTwo");
+        assertThat(updatedTask.getDescription()).isEqualTo("descTwo");
         assertThat(updatedTask.getExecutor().getId()).isEqualTo(executorId);
     }
 
@@ -230,7 +276,7 @@ public class TestTaskController {
 
         assertThat(updatedTask.getName()).isEqualTo("nameOne");
         assertThat(updatedTask.getTaskStatus().getId()).isEqualTo(taskStatusId);
-        assertThat(updatedTask.getDesc()).isEqualTo("descOne");
+        assertThat(updatedTask.getDescription()).isEqualTo("descOne");
         assertThat(updatedTask.getExecutor().getId()).isEqualTo(executorId);
     }
 

@@ -16,7 +16,7 @@ public class TaskDto {
     @NotBlank
     private String name;
 
-    private String desc;
+    private String description;
 
     private Long executorId;
 

@@ -37,7 +37,7 @@ public class Task {
     private String name;
 
     @Lob
-    private String desc;
+    private String description;
 
     @NotNull
     @ManyToOne

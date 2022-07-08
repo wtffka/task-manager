@@ -1,10 +1,12 @@
 package hexlet.code.app.controllers;
 
+import com.querydsl.core.types.Predicate;
 import hexlet.code.app.dto.TaskDto;
 import hexlet.code.app.model.Task;
 import hexlet.code.app.repository.TaskRepository;
 import hexlet.code.app.service.impls.TaskServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.querydsl.binding.QuerydslPredicate;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,7 +17,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 
 import javax.validation.Valid;
-import java.util.List;
 import java.util.NoSuchElementException;
 
 import static hexlet.code.app.utils.AppConstants.BASE_URL_FOR_TASK_CONTROLLER;
@@ -34,8 +35,8 @@ public class TaskController {
     private TaskRepository taskRepository;
 
     @GetMapping
-    public List<Task> getTasks() {
-        return taskRepository.findAll();
+    public Iterable<Task> getTasks(@QuerydslPredicate(root = Task.class) Predicate predicate) {
+        return taskRepository.findAll(predicate);
     }
 
     @GetMapping(ID)
