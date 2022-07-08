@@ -6,3 +6,5 @@
 
 
 Deployment App on Heroku : https://java-project-lvl-5.herokuapp.com/welcome
+
+Swagger Documentation available on: https://java-project-lvl-5.herokuapp.com/swagger.html

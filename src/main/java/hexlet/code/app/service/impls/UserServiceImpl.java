@@ -40,7 +40,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public void deleteUser(Long id) {
-        userRepository.delete(userRepository.findById(id).get());
+        User userToDelete = userRepository.findById(id).
+                orElseThrow(() -> new NoSuchElementException("User with that ID not found"));
+        if (userToDelete.equals(getCurrentUser())) {
+            userRepository.delete(userToDelete);
+        }
     }
 
 
