@@ -6,7 +6,7 @@ spring:
       enabled: false
 
   datasource:
-    url: jdbc:postgresql://ec2-54-76-43-89.eu-west-1.compute.amazonaws.com:5432/d45hvsop88an7a?password=05d697d7aa0f1bb85780943da20db3e7d91d227aba7e06e9a57fb5d619d3ab3f&sslmode=require&user=cllqwctmdhlpeo
+    url: ${JDBC_DATABASE_URL}
 
   jpa:
     show-sql: true
