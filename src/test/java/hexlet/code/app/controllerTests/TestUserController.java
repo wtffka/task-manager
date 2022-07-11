@@ -79,11 +79,10 @@ public class TestUserController {
     }
 
     @Test
-    public void doRegistrationOneUserTwiceTest() throws Exception {
-        utils.regDefaultUser().andExpect(status().isOk());
+    public void doRegistrationUserIncorrect() throws Exception {
+        assertThat(userRepository.count()).isEqualTo(0);
         utils.regIncorrectUser().andExpect(status().isUnprocessableEntity());
-
-        assertThat(userRepository.count()).isEqualTo(1);
+        assertThat(userRepository.count()).isEqualTo(0);
     }
 
     @Test
