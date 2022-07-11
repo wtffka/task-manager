@@ -20,11 +20,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 
 import javax.validation.Valid;
 import java.util.List;
 import java.util.NoSuchElementException;
+
+import static org.springframework.http.HttpStatus.CREATED;
 
 @RestController
 @RequestMapping(AppConstants.BASE_URL_FOR_LABEL_CONTROLLER)
@@ -68,6 +71,7 @@ public class LabelController {
             @ApiResponse(responseCode = "401", description = "User is unauthorized"),
             @ApiResponse(responseCode = "422", description = "Data validation failed")
     })
+    @ResponseStatus(CREATED)
     public Label createLabel(@Parameter(description = "Data to create Label") @RequestBody @Valid LabelDto labelDto) {
         return labelService.createLabel(labelDto);
     }
