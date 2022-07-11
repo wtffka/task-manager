@@ -36,7 +36,7 @@ public class TestUserController {
     @Test
     public void registrationUserTestPositive() throws Exception {
         assertThat(userRepository.count()).isEqualTo(0);
-        utils.regDefaultUser().andExpect(status().isOk());
+        utils.regDefaultUser().andExpect(status().isCreated());
         assertThat(userRepository.count()).isEqualTo(1);
     }
 
@@ -87,14 +87,14 @@ public class TestUserController {
 
     @Test
     public void getAuthenticatedPositive() throws Exception {
-        utils.regDefaultUser().andExpect(status().isOk());
+        utils.regDefaultUser().andExpect(status().isCreated());
         utils.authDefaultUser().andExpect(status().isOk());
         assertThat(userRepository.count()).isEqualTo(1);
     }
 
     @Test
     public void getAuthenticatedNegative() throws Exception {
-        utils.regDefaultUser().andExpect(status().isOk());
+        utils.regDefaultUser().andExpect(status().isCreated());
         utils.authIncorrectUser().andExpect(status().isUnauthorized());
     }
 }

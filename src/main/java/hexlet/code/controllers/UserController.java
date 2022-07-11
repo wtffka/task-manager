@@ -20,10 +20,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.validation.Valid;
 import java.util.List;
 import java.util.NoSuchElementException;
+
+import static org.springframework.http.HttpStatus.CREATED;
 
 @RestController
 @RequestMapping(AppConstants.BASE_URL_FOR_USER_CONTROLLER)
@@ -63,6 +66,7 @@ public class UserController {
             @ApiResponse(responseCode = "401", description = "User is unauthorized"),
             @ApiResponse(responseCode = "422", description = "Data validation failed/ email already exist")
     })
+    @ResponseStatus(CREATED)
     public User registerNew(@Parameter(description = "Data to create User", required = true)
                             @RequestBody @Valid UserDto userDto) {
         return userService.createNewUser(userDto);
