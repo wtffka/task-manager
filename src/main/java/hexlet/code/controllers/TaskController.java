@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import javax.validation.Valid;
 import java.util.NoSuchElementException;
@@ -29,6 +30,7 @@ import static hexlet.code.utils.AppConstants.BASE_URL_FOR_TASK_CONTROLLER;
 import static hexlet.code.utils.AppConstants.DELETE_TASK_SUCCESSFUL;
 import static hexlet.code.utils.AppConstants.DELETE_TASK_UNSUCCESSFUL;
 import static hexlet.code.utils.AppConstants.ID;
+import static org.springframework.http.HttpStatus.CREATED;
 
 @RestController
 @RequestMapping(BASE_URL_FOR_TASK_CONTROLLER)
@@ -67,6 +69,7 @@ public class TaskController {
             @ApiResponse(responseCode = "401", description = "User is unauthorized"),
             @ApiResponse(responseCode = "422", description = "Data validation failed")
     })
+    @ResponseStatus(CREATED)
     public Task createTask(@Parameter(description = "Data to create Task") @RequestBody @Valid TaskDto taskDto) {
         return taskService.createTask(taskDto);
     }
