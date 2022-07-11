@@ -81,7 +81,7 @@ public class TestUserController {
     @Test
     public void doRegistrationOneUserTwiceTest() throws Exception {
         utils.regDefaultUser().andExpect(status().isOk());
-        utils.regIncorrectUser().andExpect(status().isBadRequest());
+        utils.regIncorrectUser().andExpect(status().isUnprocessableEntity());
 
         assertThat(userRepository.count()).isEqualTo(1);
     }
