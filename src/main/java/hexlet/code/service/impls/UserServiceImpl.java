@@ -19,23 +19,27 @@ import static hexlet.code.utils.AppConstants.DEFAULT_AUTHORITIES;
 @Service
 public class UserServiceImpl implements UserService, UserDetailsService {
 
+    private final UserRepository userRepository;
+
+    private final PasswordEncoder passwordEncoder;
+
     @Autowired
-    private UserRepository userRepository;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Override
     public User createNewUser(UserDto userDto) {
-        final User user = new User();
-        setUserData(userDto, user);
-        return userRepository.save(user);
+        return userRepository.save(fromUserDto(userDto));
     }
 
     @Override
     public User updateUser(UserDto userDto, Long id) {
         final User userToUpdate = userRepository.findById(id).orElseThrow(NoSuchElementException::new);
-        setUserData(userDto, userToUpdate);
-        return userRepository.save(userToUpdate);
+        User updatedUser = fromUserDto(userDto);
+        updatedUser.setId(userToUpdate.getId());
+        return userRepository.save(updatedUser);
     }
 
     @Override
@@ -49,17 +53,19 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
 
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return userRepository.findByEmail(email)
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return userRepository.findByEmail(username)
                 .map(this::buildSpringUser)
                 .orElseThrow(() -> new UsernameNotFoundException("User with that username not found"));
     }
 
-    private void setUserData(UserDto userDto, User user) {
+    private User fromUserDto(UserDto userDto) {
+        User user = new User();
         user.setEmail(userDto.getEmail());
         user.setFirstName(userDto.getFirstName());
         user.setLastName(userDto.getLastName());
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+        return user;
     }
 
     private UserDetails buildSpringUser(final User user) {
@@ -71,12 +77,13 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public String getCurrentUserName() {
+    public String getCurrentEmail() {
         return SecurityContextHolder.getContext().getAuthentication().getName();
     }
 
     @Override
     public User getCurrentUser() {
-        return userRepository.findByEmail(getCurrentUserName()).get();
+        return userRepository.findByEmail(getCurrentEmail()).get();
     }
+
 }

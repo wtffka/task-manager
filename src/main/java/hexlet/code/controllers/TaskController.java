@@ -36,11 +36,14 @@ import static org.springframework.http.HttpStatus.CREATED;
 @RequestMapping(BASE_URL_FOR_TASK_CONTROLLER)
 public class TaskController {
 
-    @Autowired
-    private TaskServiceImpl taskService;
+    private final TaskServiceImpl taskService;
+    private final TaskRepository taskRepository;
 
     @Autowired
-    private TaskRepository taskRepository;
+    public TaskController(TaskServiceImpl taskService, TaskRepository taskRepository) {
+        this.taskService = taskService;
+        this.taskRepository = taskRepository;
+    }
 
     @GetMapping
     @Operation(summary = "Get list of all Tasks")

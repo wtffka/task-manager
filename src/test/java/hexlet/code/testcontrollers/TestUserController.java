@@ -27,11 +27,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @Transactional
 public class TestUserController {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+
+    private final Utils utils;
 
     @Autowired
-    private Utils utils;
+    public TestUserController(UserRepository userRepository, Utils utils) {
+        this.userRepository = userRepository;
+        this.utils = utils;
+    }
 
     @Test
     public void registrationUserTestPositive() throws Exception {

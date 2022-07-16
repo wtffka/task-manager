@@ -38,11 +38,15 @@ public class Utils {
 
     private final LoginDto testAuthenticationIncorrectDto = new LoginDto();
 
-    @Autowired
-    private MockMvc mockMvc;
+    private final MockMvc mockMvc;
+
+    private final JWTHelper jwtHelper;
 
     @Autowired
-    private JWTHelper jwtHelper;
+    public Utils(MockMvc mockMvc, JWTHelper jwtHelper) {
+        this.mockMvc = mockMvc;
+        this.jwtHelper = jwtHelper;
+    }
 
     public ResultActions regDefaultUser() throws Exception {
         return regUser(testRegistrationUserDto);

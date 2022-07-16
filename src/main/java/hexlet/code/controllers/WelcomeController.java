@@ -10,8 +10,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/welcome")
 public class WelcomeController {
 
+    private final Rollbar rollbar;
+
     @Autowired
-    private Rollbar rollbar;
+    public WelcomeController(Rollbar rollbar) {
+        this.rollbar = rollbar;
+    }
 
     @GetMapping
     public String rootWelcome() {

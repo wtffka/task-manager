@@ -9,8 +9,8 @@ import javax.validation.constraints.NotNull;
 import java.util.Set;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 public class TaskDto {
 
     @NotBlank

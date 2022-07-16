@@ -3,7 +3,6 @@ package hexlet.code.controllers;
 import hexlet.code.dto.TaskStatusDto;
 import hexlet.code.model.TaskStatus;
 import hexlet.code.repository.TaskStatusRepository;
-import hexlet.code.service.impls.TaskStatusServiceImpl;
 import hexlet.code.utils.AppConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,19 +19,21 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import static hexlet.code.utils.AppConstants.ID;
 import static org.springframework.http.HttpStatus.CREATED;
 
 @RestController
 @RequestMapping(AppConstants.BASE_URL_FOR_TASK_STATUSES_CONTROLLER)
 public class TaskStatusController {
 
-    @Autowired
-    private TaskStatusRepository taskStatusRepository;
+    private final TaskStatusRepository taskStatusRepository;
 
     @Autowired
-    private TaskStatusServiceImpl taskStatusService;
+    public TaskStatusController(TaskStatusRepository taskStatusRepository) {
+        this.taskStatusRepository = taskStatusRepository;
+    }
 
-    @GetMapping(AppConstants.ID)
+    @GetMapping(ID)
     public TaskStatus getTaskStatus(@PathVariable Long id) {
         return taskStatusRepository.findById(id).
                 orElseThrow(() -> new NoSuchElementException("TaskStatus with that ID not found"));
@@ -46,16 +47,24 @@ public class TaskStatusController {
     @PostMapping
     @ResponseStatus(CREATED)
     public TaskStatus createTaskStatus(@RequestBody @Valid TaskStatusDto taskStatusDto) {
-        return taskStatusService.createTaskStatus(taskStatusDto);
+        final TaskStatus taskStatus = new TaskStatus();
+        taskStatus.setName(taskStatusDto.getName());
+        return taskStatusRepository.save(taskStatus);
     }
 
-    @PutMapping(AppConstants.ID)
+    @PutMapping(ID)
     public TaskStatus updateTaskStatus(@RequestBody @Valid TaskStatusDto taskStatusDto, @PathVariable Long id) {
-        return taskStatusService.updateTaskStatus(taskStatusDto, id);
+        TaskStatus taskStatusToUpdate = taskStatusRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("TaskStatus with that id not found"));
+
+        taskStatusToUpdate.setName(taskStatusDto.getName());
+        return taskStatusRepository.save(taskStatusToUpdate);
     }
 
-    @DeleteMapping(AppConstants.ID)
+    @DeleteMapping(ID)
     public void deleteTaskStatus(@PathVariable Long id) {
-        taskStatusService.deleteTaskStatus(id);
+        final TaskStatus taskStatusToDelete = taskStatusRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("TaskStatus with that id not found"));
+        taskStatusRepository.delete(taskStatusToDelete);
     }
 }

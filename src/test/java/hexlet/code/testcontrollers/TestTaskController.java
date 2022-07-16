@@ -39,14 +39,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 public class TestTaskController {
 
-    @Autowired
-    private TaskRepository taskRepository;
+    private final TaskRepository taskRepository;
+
+    private final UserRepository userRepository;
+
+    private final Utils utils;
 
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private Utils utils;
+    public TestTaskController(UserRepository userRepository, TaskRepository taskRepository, Utils utils) {
+        this.userRepository = userRepository;
+        this.taskRepository = taskRepository;
+        this.utils = utils;
+    }
 
     private static final TaskStatusDto TEST_TASK_STATUS_DTO = new TaskStatusDto("New");
 

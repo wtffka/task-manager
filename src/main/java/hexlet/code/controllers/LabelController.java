@@ -3,7 +3,6 @@ package hexlet.code.controllers;
 import hexlet.code.dto.LabelDto;
 import hexlet.code.model.Label;
 import hexlet.code.repository.LabelRepository;
-import hexlet.code.service.impls.LabelServiceImpl;
 import hexlet.code.utils.AppConstants;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -33,11 +32,12 @@ import static org.springframework.http.HttpStatus.CREATED;
 @RequestMapping(AppConstants.BASE_URL_FOR_LABEL_CONTROLLER)
 public class LabelController {
 
-    @Autowired
-    private LabelRepository labelRepository;
+    private final LabelRepository labelRepository;
 
     @Autowired
-    private LabelServiceImpl labelService;
+    public LabelController(LabelRepository labelRepository) {
+        this.labelRepository = labelRepository;
+    }
 
     @GetMapping
     @Operation(summary = "Get list of all Labels")
@@ -73,7 +73,9 @@ public class LabelController {
     })
     @ResponseStatus(CREATED)
     public Label createLabel(@Parameter(description = "Data to create Label") @RequestBody @Valid LabelDto labelDto) {
-        return labelService.createLabel(labelDto);
+        final Label label = new Label();
+        label.setName(labelDto.getName());
+        return labelRepository.save(label);
     }
 
     @PutMapping(AppConstants.ID)
@@ -87,7 +89,10 @@ public class LabelController {
     })
     public Label updateLabel(@Parameter(description = "Data to update Label") @RequestBody @Valid LabelDto labelDto,
                              @Parameter(description = "Label Id to update") @PathVariable Long id) {
-        return labelService.updateLabel(labelDto, id);
+        Label labelToUpdate = labelRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Label with that id not found"));
+        labelToUpdate.setName(labelDto.getName());
+        return labelRepository.save(labelToUpdate);
     }
 
     @DeleteMapping(AppConstants.ID)
@@ -100,6 +105,9 @@ public class LabelController {
             @ApiResponse(responseCode = "422", description = "Can't delete label with existing task(s)"),
     })
     public void deleteLabel(@Parameter(description = "Label Id to delete") @PathVariable Long id) {
-        labelService.deleteLabel(id);
+        final Label labelToDelete = labelRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Label with that id not found"));
+
+        labelRepository.delete(labelToDelete);
     }
 }

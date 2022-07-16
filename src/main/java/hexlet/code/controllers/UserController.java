@@ -31,11 +31,15 @@ import static org.springframework.http.HttpStatus.CREATED;
 @RestController
 @RequestMapping(AppConstants.BASE_URL_FOR_USER_CONTROLLER)
 public class UserController {
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+
+    private final UserServiceImpl userService;
 
     @Autowired
-    private UserServiceImpl userService;
+    public UserController(UserRepository userRepository, UserServiceImpl userService) {
+        this.userRepository = userRepository;
+        this.userService = userService;
+    }
 
     @GetMapping(AppConstants.ID)
     @Operation(summary = "Get User by id")

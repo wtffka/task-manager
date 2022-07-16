@@ -13,4 +13,5 @@ public class LabelDto {
 
     @NotBlank
     private String name;
+
 }

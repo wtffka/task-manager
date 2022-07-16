@@ -8,7 +8,7 @@ public interface UserService {
     User updateUser(UserDto userDto, Long id);
     void deleteUser(Long id);
 
-    String getCurrentUserName();
+    String getCurrentEmail();
 
     User getCurrentUser();
 }

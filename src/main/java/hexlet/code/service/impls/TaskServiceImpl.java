@@ -21,46 +21,52 @@ import java.util.Set;
 @Service
 public class TaskServiceImpl implements TaskService {
 
-    @Autowired
-    private TaskRepository taskRepository;
+    private final TaskRepository taskRepository;
+
+    private final UserServiceImpl userService;
+
+    private final UserRepository userRepository;
+
+    private final LabelRepository labelRepository;
+
+    private final TaskStatusRepository taskStatusRepository;
 
     @Autowired
-    private TaskStatusRepository taskStatusRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private LabelRepository labelRepository;
-
-    @Autowired
-    private UserServiceImpl userService;
+    public TaskServiceImpl(TaskRepository taskRepository, UserServiceImpl userService, UserRepository userRepository,
+                           LabelRepository labelRepository, TaskStatusRepository taskStatusRepository) {
+        this.taskRepository = taskRepository;
+        this.userService = userService;
+        this.userRepository = userRepository;
+        this.labelRepository = labelRepository;
+        this.taskStatusRepository = taskStatusRepository;
+    }
 
     @Override
     public Task createTask(TaskDto taskDto) {
-        final Task task = new Task();
-        setTaskData(taskDto, task);
-        return taskRepository.save(task);
+        return taskRepository.save(fromTaskDto(taskDto));
     }
 
     @Override
     public Task updateTask(TaskDto taskDto, Long id) {
         Task taskToUpdate = taskRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Task with that id not found"));
-        setTaskData(taskDto, taskToUpdate);
-        return taskRepository.save(taskToUpdate);
+        Task updatedTask = fromTaskDto(taskDto);
+
+        updatedTask.setId(taskToUpdate.getId());
+        return taskRepository.save(updatedTask);
     }
 
     @Override
     public void deleteTask(Long id) {
-        if (taskRepository.findById(id).get().getAuthor().getEmail().equals(userService.getCurrentUserName())) {
+        if (taskRepository.findById(id).get().getAuthor().getEmail().equals(userService.getCurrentEmail())) {
             final Task taskToDelete = taskRepository.findById(id)
                     .orElseThrow(() -> new NoSuchElementException("Task with that id not found"));
             taskRepository.delete(taskToDelete);
         }
     }
 
-    private void setTaskData(TaskDto taskDto, Task task) {
+    private Task fromTaskDto(TaskDto taskDto) {
+        Task task = new Task();
         final TaskStatus taskStatus = taskStatusRepository.findById(taskDto.getTaskStatusId()).get();
         final User user = userService.getCurrentUser();
         task.setTaskStatus(taskStatus);
@@ -72,6 +78,8 @@ public class TaskServiceImpl implements TaskService {
             final Long executorId = taskDto.getExecutorId();
             task.setExecutor(userRepository.findById(executorId).get());
         }
+
+        return task;
     }
 
     private List<Label> setLabelList(Set<Long> labelIds) {

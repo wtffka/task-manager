@@ -31,11 +31,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 public class TestLabelController {
 
-    @Autowired
-    private LabelRepository labelRepository;
+    private final LabelRepository labelRepository;
+
+    private final Utils utils;
 
     @Autowired
-    private Utils utils;
+    public TestLabelController(LabelRepository labelRepository, Utils utils) {
+        this.labelRepository = labelRepository;
+        this.utils = utils;
+    }
 
     private static final LabelDto TEST_LABEL_DTO = new LabelDto("BUG");
     private static final LabelDto TEST_LABEL_DTO_2 = new LabelDto("NOT BUG");
