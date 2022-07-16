@@ -53,6 +53,7 @@ public class TaskServiceImpl implements TaskService {
         Task updatedTask = fromTaskDto(taskDto);
 
         updatedTask.setId(taskToUpdate.getId());
+        updatedTask.setCreatedAt(taskToUpdate.getCreatedAt());
         return taskRepository.save(updatedTask);
     }
 

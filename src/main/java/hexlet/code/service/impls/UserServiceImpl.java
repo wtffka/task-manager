@@ -39,6 +39,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         final User userToUpdate = userRepository.findById(id).orElseThrow(NoSuchElementException::new);
         User updatedUser = fromUserDto(userDto);
         updatedUser.setId(userToUpdate.getId());
+        updatedUser.setCreatedAt(userToUpdate.getCreatedAt());
         return userRepository.save(updatedUser);
     }
 
