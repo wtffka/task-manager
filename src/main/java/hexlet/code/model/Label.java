@@ -26,6 +26,7 @@ import static javax.persistence.TemporalType.TIMESTAMP;
 @NoArgsConstructor
 @Table(name = "labels")
 @Builder
+//dfdfdsfdf
 public class Label {
 
     @Id
