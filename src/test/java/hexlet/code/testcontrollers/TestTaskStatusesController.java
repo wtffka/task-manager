@@ -50,8 +50,8 @@ public class TestTaskStatusesController {
         TaskStatus expectedTaskStatus = taskStatusRepository.findAll().get(0);
 
         utils.perform(
-                MockMvcRequestBuilders.get("/api/statuses/{id}",
-                        expectedTaskStatus.getId()),
+                        MockMvcRequestBuilders.get("/api/statuses/{id}",
+                                expectedTaskStatus.getId()),
                         AppConstants.TEST_USERNAME)
                 .andExpect(status().isOk())
                 .andReturn()
@@ -72,7 +72,7 @@ public class TestTaskStatusesController {
         TaskStatus expectedStatus2 = taskStatusRepository.findAll().get(1);
 
         utils.perform(
-                MockMvcRequestBuilders.get("/api/statuses"),
+                        MockMvcRequestBuilders.get("/api/statuses"),
                         AppConstants.TEST_USERNAME)
                 .andExpect(status().isOk())
                 .andReturn()
@@ -111,7 +111,7 @@ public class TestTaskStatusesController {
         final MockHttpServletRequestBuilder request = MockMvcRequestBuilders
                 .put("/api/statuses/{id}",
                         expectedTaskStatus.getId())
-                        .content(toJson(TASK_STATUS_DTO_UPDATE_TEST)).contentType(MediaType.APPLICATION_JSON);
+                .content(toJson(TASK_STATUS_DTO_UPDATE_TEST)).contentType(MediaType.APPLICATION_JSON);
 
         TaskStatus updatedStatus = taskStatusRepository.findAll().get(0);
 
@@ -133,7 +133,7 @@ public class TestTaskStatusesController {
 
         final MockHttpServletRequestBuilder request = MockMvcRequestBuilders
                 .put("/api/statuses/{id}",
-                expectedTaskStatus.getId())
+                        expectedTaskStatus.getId())
                 .content(toJson(TASK_STATUS_DTO_UPDATE_TEST)).contentType(MediaType.APPLICATION_JSON);
 
         utils.perform(request)
@@ -152,8 +152,8 @@ public class TestTaskStatusesController {
         TaskStatus expectedTaskStatus = taskStatusRepository.findAll().get(0);
 
         utils.perform(MockMvcRequestBuilders
-                .delete("/api/statuses/{id}",
-                expectedTaskStatus.getId()), AppConstants.TEST_USERNAME)
+                        .delete("/api/statuses/{id}",
+                                expectedTaskStatus.getId()), AppConstants.TEST_USERNAME)
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse();

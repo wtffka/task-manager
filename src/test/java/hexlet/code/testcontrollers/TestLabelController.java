@@ -58,7 +58,7 @@ public class TestLabelController {
         final Label expectedLabel = labelRepository.findAll().get(0);
 
         final MockHttpServletResponse response = utils.perform(
-                get("/api/labels/{id}", expectedLabel.getId()), TEST_USERNAME)
+                        get("/api/labels/{id}", expectedLabel.getId()), TEST_USERNAME)
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse();

@@ -83,7 +83,7 @@ public class TestTaskController {
         Task expectedTask = taskRepository.findAll().get(0);
 
         utils.perform(
-                get("/api/tasks/{id}", expectedTask.getId()),
+                        get("/api/tasks/{id}", expectedTask.getId()),
                         expectedTask.getAuthor().getEmail())
                 .andExpect(status().isOk())
                 .andReturn()
@@ -303,7 +303,7 @@ public class TestTaskController {
         Task expectedTask = taskRepository.findAll().get(0);
 
         utils.perform(delete("/api/tasks/{id}",
-                 expectedTask.getId()), TEST_USERNAME)
+                        expectedTask.getId()), TEST_USERNAME)
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse();
@@ -336,7 +336,7 @@ public class TestTaskController {
         Task expectedTask = taskRepository.findAll().get(0);
 
         utils.perform(delete("/api/tasks/{id}",
-                expectedTask.getId()), userRepository.findByEmail("a@b.ru").get().getEmail())
+                        expectedTask.getId()), userRepository.findByEmail("a@b.ru").get().getEmail())
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse();

@@ -47,8 +47,8 @@ public class TestUserController {
         utils.regDefaultUser();
         final User expectedUser = userRepository.findAll().get(0);
         final MockHttpServletResponse response = utils.perform(
-                get("/api/users/{id}", expectedUser.getId()),
-                expectedUser.getEmail())
+                        get("/api/users/{id}", expectedUser.getId()),
+                        expectedUser.getEmail())
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse();
@@ -67,7 +67,7 @@ public class TestUserController {
     public void getUserNegativeTest() throws Exception {
         utils.regDefaultUser();
         final MockHttpServletResponse response = utils.perform(
-                get("/api/users"))
+                        get("/api/users"))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse();
