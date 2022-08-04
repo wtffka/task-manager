@@ -14,8 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 import static hexlet.code.utils.Utils.fromJson;
-import static hexlet.code.utils.AppConstants.BASE_URL_FOR_USER_CONTROLLER;
-import static hexlet.code.utils.AppConstants.ID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -49,7 +47,7 @@ public class TestUserController {
         utils.regDefaultUser();
         final User expectedUser = userRepository.findAll().get(0);
         final MockHttpServletResponse response = utils.perform(
-                get(BASE_URL_FOR_USER_CONTROLLER + ID, expectedUser.getId()),
+                get("/api/users/{id}", expectedUser.getId()),
                 expectedUser.getEmail())
                 .andExpect(status().isOk())
                 .andReturn()
@@ -69,7 +67,7 @@ public class TestUserController {
     public void getUserNegativeTest() throws Exception {
         utils.regDefaultUser();
         final MockHttpServletResponse response = utils.perform(
-                get(BASE_URL_FOR_USER_CONTROLLER))
+                get("/api/users"))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse();

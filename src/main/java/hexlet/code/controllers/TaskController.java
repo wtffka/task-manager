@@ -4,7 +4,7 @@ import com.querydsl.core.types.Predicate;
 import hexlet.code.dto.TaskDto;
 import hexlet.code.model.Task;
 import hexlet.code.repository.TaskRepository;
-import hexlet.code.service.impls.TaskServiceImpl;
+import hexlet.code.service.impl.TaskServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -26,14 +26,10 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import javax.validation.Valid;
 import java.util.NoSuchElementException;
 
-import static hexlet.code.utils.AppConstants.BASE_URL_FOR_TASK_CONTROLLER;
-import static hexlet.code.utils.AppConstants.DELETE_TASK_SUCCESSFUL;
-import static hexlet.code.utils.AppConstants.DELETE_TASK_UNSUCCESSFUL;
-import static hexlet.code.utils.AppConstants.ID;
 import static org.springframework.http.HttpStatus.CREATED;
 
 @RestController
-@RequestMapping(BASE_URL_FOR_TASK_CONTROLLER)
+@RequestMapping("/api/tasks")
 public class TaskController {
 
     private final TaskServiceImpl taskService;
@@ -53,7 +49,7 @@ public class TaskController {
         return taskRepository.findAll(predicate);
     }
 
-    @GetMapping(ID)
+    @GetMapping("/{id}")
     @Operation(summary = "Get Task by id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Task found", content =
@@ -77,7 +73,7 @@ public class TaskController {
         return taskService.createTask(taskDto);
     }
 
-    @PutMapping(ID)
+    @PutMapping("/{id}")
     @Operation(summary = "Update Task")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Task updated", content =
@@ -91,19 +87,14 @@ public class TaskController {
         return taskService.updateTask(taskDto, id);
     }
 
-    @DeleteMapping(ID)
+    @DeleteMapping("/{id}")
     @Operation(summary = "Delete task")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Task deleted"),
             @ApiResponse(responseCode = "401", description = "User is unauthorized"),
             @ApiResponse(responseCode = "403", description = "Operation available only for owner")
     })
-    public String deleteTask(@Parameter(description = "Task id to delete") @PathVariable Long id) {
-        int tasksBeforeDeleteAttempt = taskRepository.findAll().size();
+    public void deleteTask(@Parameter(description = "Task id to delete") @PathVariable Long id) {
         taskService.deleteTask(id);
-        if (tasksBeforeDeleteAttempt != taskRepository.findAll().size()) {
-            return DELETE_TASK_SUCCESSFUL;
-        }
-        return DELETE_TASK_UNSUCCESSFUL;
     }
 }

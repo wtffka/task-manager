@@ -9,6 +9,7 @@ import hexlet.code.repository.TaskRepository;
 
 import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.repository.UserRepository;
+import hexlet.code.utils.AppConstants;
 import hexlet.code.utils.Utils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,15 +18,15 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 import static hexlet.code.utils.Utils.fromJson;
 import static hexlet.code.utils.Utils.toJson;
-import static hexlet.code.utils.AppConstants.BASE_URL_FOR_TASK_CONTROLLER;
-import static hexlet.code.utils.AppConstants.ID;
 import static hexlet.code.utils.AppConstants.TEST_USERNAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -43,24 +44,27 @@ public class TestTaskController {
 
     private final UserRepository userRepository;
 
+    private final TaskStatusRepository taskStatusRepository;
+
     private final Utils utils;
 
     @Autowired
-    public TestTaskController(UserRepository userRepository, TaskRepository taskRepository, Utils utils) {
+    public TestTaskController(UserRepository userRepository,
+                              TaskRepository taskRepository,
+                              TaskStatusRepository taskStatusRepository,
+                              Utils utils) {
         this.userRepository = userRepository;
         this.taskRepository = taskRepository;
+        this.taskStatusRepository = taskStatusRepository;
         this.utils = utils;
     }
 
     private static final TaskStatusDto TEST_TASK_STATUS_DTO = new TaskStatusDto("New");
 
-    @Autowired
-    private TaskStatusRepository taskStatusRepository;
-
     @BeforeEach
     void init() throws Exception {
         utils.regDefaultUser();
-        utils.regTaskStatus(TEST_TASK_STATUS_DTO);
+        regTaskStatus(TEST_TASK_STATUS_DTO);
     }
 
     @Test
@@ -68,7 +72,7 @@ public class TestTaskController {
         final Long executorId = userRepository.findAll().get(0).getId();
         final Long taskStatusId = taskStatusRepository.findAll().get(0).getId();
 
-        utils.regTask(new TaskDto(
+        regTask(new TaskDto(
                 "name",
                 "desc",
                 executorId,
@@ -79,7 +83,7 @@ public class TestTaskController {
         Task expectedTask = taskRepository.findAll().get(0);
 
         utils.perform(
-                get(BASE_URL_FOR_TASK_CONTROLLER + ID, expectedTask.getId()),
+                get("/api/tasks/{id}", expectedTask.getId()),
                         expectedTask.getAuthor().getEmail())
                 .andExpect(status().isOk())
                 .andReturn()
@@ -93,13 +97,13 @@ public class TestTaskController {
 
     @Test
     public void getAllTasksQueryDsl() throws Exception {
-        utils.regTaskStatus(new TaskStatusDto("not new"));
+        regTaskStatus(new TaskStatusDto("not new"));
 
         final Long executorId = userRepository.findAll().get(0).getId();
         final Long taskStatusId = taskStatusRepository.findAll().get(0).getId();
         final Long taskStatusId2 = taskStatusRepository.findAll().get(1).getId();
 
-        utils.regTask(new TaskDto(
+        regTask(new TaskDto(
                 "name",
                 "desc",
                 executorId,
@@ -107,7 +111,7 @@ public class TestTaskController {
                 null
         ));
 
-        utils.regTask(new TaskDto(
+        regTask(new TaskDto(
                 "name2",
                 "desc2",
                 executorId,
@@ -117,7 +121,7 @@ public class TestTaskController {
 
         String queryDsl = "?taskStatusId=" + taskStatusId + "&executorId=" + executorId;
         final MockHttpServletResponse response = utils.perform(
-                        get(BASE_URL_FOR_TASK_CONTROLLER + queryDsl), TEST_USERNAME)
+                        get("/api/tasks" + queryDsl), TEST_USERNAME)
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse();
@@ -137,7 +141,7 @@ public class TestTaskController {
         final Long executorId = userRepository.findAll().get(0).getId();
         final Long taskStatusId = taskStatusRepository.findAll().get(0).getId();
 
-        utils.regTask(new TaskDto(
+        regTask(new TaskDto(
                 "nameOne",
                 "descOne",
                 executorId,
@@ -145,7 +149,7 @@ public class TestTaskController {
                 null
         ));
 
-        utils.regTask(new TaskDto(
+        regTask(new TaskDto(
                 "nameTwo",
                 "descTwo",
                 executorId,
@@ -159,8 +163,7 @@ public class TestTaskController {
         Task expectedTask2 = taskRepository.findAll().get(1);
 
 
-        utils.perform(
-                        get(BASE_URL_FOR_TASK_CONTROLLER), expectedTask1.getAuthor().getEmail())
+        utils.perform(get("/api/tasks"), expectedTask1.getAuthor().getEmail())
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse();
@@ -181,7 +184,7 @@ public class TestTaskController {
         final Long taskStatusId = taskStatusRepository.findAll().get(0).getId();
 
         assertThat(taskRepository.count()).isEqualTo(0);
-        utils.regTask(new TaskDto(
+        regTask(new TaskDto(
                 "name",
                 "desc",
                 executorId,
@@ -198,7 +201,7 @@ public class TestTaskController {
         final Long taskStatusId = taskStatusRepository.findAll().get(0).getId();
 
         assertThat(taskRepository.count()).isEqualTo(0);
-        utils.regTaskIncorrect(new TaskDto(
+        regTaskIncorrect(new TaskDto(
                 "name",
                 "desc",
                 executorId,
@@ -213,7 +216,7 @@ public class TestTaskController {
         final Long executorId = userRepository.findAll().get(0).getId();
         final Long taskStatusId = taskStatusRepository.findAll().get(0).getId();
 
-        utils.regTask(new TaskDto(
+        regTask(new TaskDto(
                 "nameOne",
                 "descOne",
                 executorId,
@@ -223,8 +226,7 @@ public class TestTaskController {
 
         Task expectedTask = taskRepository.findAll().get(0);
 
-        final MockHttpServletRequestBuilder request = put(
-                BASE_URL_FOR_TASK_CONTROLLER + ID, expectedTask.getId())
+        final MockHttpServletRequestBuilder request = put("/api/tasks/{id}", expectedTask.getId())
                 .content(toJson(new TaskDto(
                         "nameTwo",
                         "descTwo",
@@ -251,7 +253,7 @@ public class TestTaskController {
         final Long executorId = userRepository.findAll().get(0).getId();
         final Long taskStatusId = taskStatusRepository.findAll().get(0).getId();
 
-        utils.regTask(new TaskDto(
+        regTask(new TaskDto(
                 "nameOne",
                 "descOne",
                 executorId,
@@ -261,8 +263,7 @@ public class TestTaskController {
 
         Task expectedTask = taskRepository.findAll().get(0);
 
-        final MockHttpServletRequestBuilder request = put(
-                BASE_URL_FOR_TASK_CONTROLLER + ID, expectedTask.getId())
+        final MockHttpServletRequestBuilder request = put("/api/tasks/{id}", expectedTask.getId())
                 .content(toJson(new TaskDto(
                         "nameTwo",
                         "descTwo",
@@ -289,7 +290,7 @@ public class TestTaskController {
         final Long executorId = userRepository.findAll().get(0).getId();
         final Long taskStatusId = taskStatusRepository.findAll().get(0).getId();
         assertThat(taskRepository.count()).isEqualTo(0);
-        utils.regTask(new TaskDto(
+        regTask(new TaskDto(
                 "nameOne",
                 "descOne",
                 executorId,
@@ -301,8 +302,7 @@ public class TestTaskController {
 
         Task expectedTask = taskRepository.findAll().get(0);
 
-        utils.perform(
-                delete(BASE_URL_FOR_TASK_CONTROLLER + ID,
+        utils.perform(delete("/api/tasks/{id}",
                  expectedTask.getId()), TEST_USERNAME)
                 .andExpect(status().isOk())
                 .andReturn()
@@ -318,7 +318,7 @@ public class TestTaskController {
 
         assertThat(taskRepository.count()).isEqualTo(0);
 
-        utils.regTask(new TaskDto(
+        regTask(new TaskDto(
                 "nameOne",
                 "descOne",
                 executorId,
@@ -335,14 +335,41 @@ public class TestTaskController {
 
         Task expectedTask = taskRepository.findAll().get(0);
 
-        utils.perform(
-                delete(BASE_URL_FOR_TASK_CONTROLLER + ID,
+        utils.perform(delete("/api/tasks/{id}",
                 expectedTask.getId()), userRepository.findByEmail("a@b.ru").get().getEmail())
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse();
 
         assertThat(taskRepository.count()).isEqualTo(1);
+
+    }
+
+    private ResultActions regTask(final TaskDto taskDto) throws Exception {
+        final MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .post("/api/tasks")
+                .content(toJson(taskDto))
+                .contentType(MediaType.APPLICATION_JSON);
+
+        return utils.perform(request, AppConstants.TEST_USERNAME);
+    }
+
+    private ResultActions regTaskIncorrect(final TaskDto taskDto) throws Exception {
+        final MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .post("/api/tasks")
+                .content(toJson(taskDto))
+                .contentType(MediaType.APPLICATION_JSON);
+
+        return utils.perform(request);
+    }
+
+    private ResultActions regTaskStatus(final TaskStatusDto taskStatusDto) throws Exception {
+        final MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .post("/api/statuses")
+                .content(toJson(taskStatusDto))
+                .contentType(MediaType.APPLICATION_JSON);
+
+        return utils.perform(request, AppConstants.TEST_USERNAME);
 
     }
 }

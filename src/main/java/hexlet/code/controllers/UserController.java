@@ -3,8 +3,7 @@ package hexlet.code.controllers;
 import hexlet.code.dto.UserDto;
 import hexlet.code.model.User;
 import hexlet.code.repository.UserRepository;
-import hexlet.code.service.impls.UserServiceImpl;
-import hexlet.code.utils.AppConstants;
+import hexlet.code.service.impl.UserServiceImpl;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -29,7 +28,7 @@ import java.util.NoSuchElementException;
 import static org.springframework.http.HttpStatus.CREATED;
 
 @RestController
-@RequestMapping(AppConstants.BASE_URL_FOR_USER_CONTROLLER)
+@RequestMapping("api/users")
 public class UserController {
     private final UserRepository userRepository;
 
@@ -41,7 +40,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping(AppConstants.ID)
+    @GetMapping({"/{id}"})
     @Operation(summary = "Get User by id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User found", content =
@@ -76,7 +75,7 @@ public class UserController {
         return userService.createNewUser(userDto);
     }
 
-    @PutMapping(AppConstants.ID)
+    @PutMapping("/{id}")
     @Operation(summary = "Update User")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User updated", content =
@@ -93,7 +92,7 @@ public class UserController {
         return userService.updateUser(userDto, id);
     }
 
-    @DeleteMapping(AppConstants.ID)
+    @DeleteMapping("/{id}")
     @Operation(summary = "Delete User")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "User deleted"),

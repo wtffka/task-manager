@@ -18,8 +18,6 @@ import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 
-import static hexlet.code.utils.AppConstants.BASE_URL_FOR_USER_CONTROLLER;
-import static hexlet.code.utils.AppConstants.LOGIN;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 
@@ -37,10 +35,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                              final UserDetailsService userDetailsService,
                              final PasswordEncoder passwordEncoder,
                              final JWTHelper jwtHelper) {
-        this.loginRequest = new AntPathRequestMatcher(baseUrl + LOGIN, POST.toString());
+        this.loginRequest = new AntPathRequestMatcher(baseUrl + "/login", POST.toString());
         this.publicUrls = new OrRequestMatcher(loginRequest,
-                new AntPathRequestMatcher(BASE_URL_FOR_USER_CONTROLLER, POST.toString()),
-                new AntPathRequestMatcher(BASE_URL_FOR_USER_CONTROLLER, GET.toString()),
+                new AntPathRequestMatcher("/api/users", POST.toString()),
+                new AntPathRequestMatcher("/api/users", GET.toString()),
                 new NegatedRequestMatcher(new AntPathRequestMatcher(baseUrl + "/**"))
         );
         this.userDetailsService = userDetailsService;

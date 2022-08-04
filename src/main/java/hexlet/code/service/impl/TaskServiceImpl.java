@@ -1,44 +1,33 @@
-package hexlet.code.service.impls;
+package hexlet.code.service.impl;
 
 import hexlet.code.dto.TaskDto;
 import hexlet.code.model.Label;
 import hexlet.code.model.Task;
 import hexlet.code.model.TaskStatus;
 import hexlet.code.model.User;
-import hexlet.code.repository.LabelRepository;
 import hexlet.code.repository.TaskRepository;
-import hexlet.code.repository.TaskStatusRepository;
-import hexlet.code.repository.UserRepository;
 import hexlet.code.service.TaskService;
+import hexlet.code.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
+import java.util.HashSet;
+
 
 @Service
 public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
 
-    private final UserServiceImpl userService;
-
-    private final UserRepository userRepository;
-
-    private final LabelRepository labelRepository;
-
-    private final TaskStatusRepository taskStatusRepository;
+    private final UserService userService;
 
     @Autowired
-    public TaskServiceImpl(TaskRepository taskRepository, UserServiceImpl userService, UserRepository userRepository,
-                           LabelRepository labelRepository, TaskStatusRepository taskStatusRepository) {
+    public TaskServiceImpl(TaskRepository taskRepository, UserService userService) {
         this.taskRepository = taskRepository;
         this.userService = userService;
-        this.userRepository = userRepository;
-        this.labelRepository = labelRepository;
-        this.taskStatusRepository = taskStatusRepository;
     }
 
     @Override
@@ -54,6 +43,7 @@ public class TaskServiceImpl implements TaskService {
 
         updatedTask.setId(taskToUpdate.getId());
         updatedTask.setCreatedAt(taskToUpdate.getCreatedAt());
+
         return taskRepository.save(updatedTask);
     }
 
@@ -68,31 +58,42 @@ public class TaskServiceImpl implements TaskService {
 
     private Task fromTaskDto(TaskDto taskDto) {
         Task task = new Task();
-        final TaskStatus taskStatus = taskStatusRepository.findById(taskDto.getTaskStatusId()).get();
         final User user = userService.getCurrentUser();
+
+        final TaskStatus taskStatus = Optional.ofNullable(taskDto.getTaskStatusId())
+                .map(TaskStatus::new)
+                .orElse(null);
+
+        final User executor = Optional.ofNullable(taskDto.getExecutorId())
+                .map(User::new)
+                .orElse(null);
+
+
         task.setTaskStatus(taskStatus);
         task.setName(taskDto.getName());
         task.setAuthor(user);
         task.setDescription(taskDto.getDescription());
         task.setLabels(setLabelList(taskDto.getLabelIds()));
-        if (taskDto.getExecutorId() != null) {
-            final Long executorId = taskDto.getExecutorId();
-            task.setExecutor(userRepository.findById(executorId).get());
-        }
+        task.setExecutor(executor);
 
         return task;
     }
 
-    private List<Label> setLabelList(Set<Long> labelIds) {
+    private Set<Label> setLabelList(Set<Long> labelIds) {
+
         if (labelIds == null) {
             return null;
         }
-        List<Label> labelList = new ArrayList<>();
+
+        Set<Label> labelList = new HashSet<>();
         for (Long labelId : labelIds) {
-            final Label label = labelRepository.findById(labelId).
-                    orElseThrow(() -> new NoSuchElementException("Label with that ID not found"));
+            final Label label = Optional.ofNullable(labelId)
+                    .map(Label::new)
+                    .orElse(null);
+
             labelList.add(label);
         }
+
         return labelList;
     }
 }

@@ -3,7 +3,6 @@ package hexlet.code.controllers;
 import hexlet.code.dto.LabelDto;
 import hexlet.code.model.Label;
 import hexlet.code.repository.LabelRepository;
-import hexlet.code.utils.AppConstants;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -29,7 +28,7 @@ import java.util.NoSuchElementException;
 import static org.springframework.http.HttpStatus.CREATED;
 
 @RestController
-@RequestMapping(AppConstants.BASE_URL_FOR_LABEL_CONTROLLER)
+@RequestMapping("/api/labels")
 public class LabelController {
 
     private final LabelRepository labelRepository;
@@ -50,7 +49,7 @@ public class LabelController {
         return labelRepository.findAll();
     }
 
-    @GetMapping(AppConstants.ID)
+    @GetMapping("/{id}")
     @Operation(summary = "Get Label by id")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Label found", content =
@@ -73,12 +72,10 @@ public class LabelController {
     })
     @ResponseStatus(CREATED)
     public Label createLabel(@Parameter(description = "Data to create Label") @RequestBody @Valid LabelDto labelDto) {
-        final Label label = new Label();
-        label.setName(labelDto.getName());
-        return labelRepository.save(label);
+        return labelRepository.save(Label.builder().name(labelDto.getName()).build());
     }
 
-    @PutMapping(AppConstants.ID)
+    @PutMapping("/{id}")
     @Operation(summary = "Update Label")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Label updated", content =
@@ -95,7 +92,7 @@ public class LabelController {
         return labelRepository.save(labelToUpdate);
     }
 
-    @DeleteMapping(AppConstants.ID)
+    @DeleteMapping("/{id}")
     @Operation(summary = "Delete Label")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Label deleted", content =

@@ -3,6 +3,7 @@ package hexlet.code.testcontrollers;
 import hexlet.code.dto.LabelDto;
 import hexlet.code.model.Label;
 import hexlet.code.repository.LabelRepository;
+import hexlet.code.utils.AppConstants;
 import hexlet.code.utils.Utils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,13 +12,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
 
 
 import static hexlet.code.utils.Utils.toJson;
-import static hexlet.code.utils.AppConstants.BASE_URL_FOR_LABEL_CONTROLLER;
-import static hexlet.code.utils.AppConstants.ID;
 import static hexlet.code.utils.AppConstants.TEST_USERNAME;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -52,12 +53,12 @@ public class TestLabelController {
 
     @Test
     public void testGetLabel() throws Exception {
-        utils.regLabelPositive(TEST_LABEL_DTO);
+        regLabelPositive(TEST_LABEL_DTO);
 
         final Label expectedLabel = labelRepository.findAll().get(0);
 
         final MockHttpServletResponse response = utils.perform(
-                get(BASE_URL_FOR_LABEL_CONTROLLER + ID, expectedLabel.getId()), TEST_USERNAME)
+                get("/api/labels/{id}", expectedLabel.getId()), TEST_USERNAME)
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse();
@@ -68,14 +69,14 @@ public class TestLabelController {
 
     @Test
     public void testGetLabels() throws Exception {
-        utils.regLabelPositive(TEST_LABEL_DTO);
-        utils.regLabelPositive(TEST_LABEL_DTO_2);
+        regLabelPositive(TEST_LABEL_DTO);
+        regLabelPositive(TEST_LABEL_DTO_2);
 
         final Label expectedLabel1 = labelRepository.findAll().get(0);
         final Label expectedLabel2 = labelRepository.findAll().get(1);
 
         final MockHttpServletResponse response = utils.perform(
-                        get(BASE_URL_FOR_LABEL_CONTROLLER), TEST_USERNAME)
+                        get("/api/labels"), TEST_USERNAME)
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse();
@@ -90,24 +91,24 @@ public class TestLabelController {
     @Test
     public void testCreateLabelPositive() throws Exception {
         assertThat(labelRepository.count()).isEqualTo(0);
-        utils.regLabelPositive(TEST_LABEL_DTO);
+        regLabelPositive(TEST_LABEL_DTO);
         assertThat(labelRepository.count()).isEqualTo(1);
     }
 
     @Test
     public void testCreateLabelNegative() throws Exception {
         assertThat(labelRepository.count()).isEqualTo(0);
-        utils.regLabelNegative(TEST_LABEL_DTO);
+        regLabelNegative();
         assertThat(labelRepository.count()).isEqualTo(0);
     }
 
     @Test
     public void testUpdateLabelPositive() throws Exception {
-        utils.regLabelPositive(TEST_LABEL_DTO);
+        regLabelPositive(TEST_LABEL_DTO);
 
         final Label expectedLabel = labelRepository.findAll().get(0);
 
-        final MockHttpServletRequestBuilder request = put(BASE_URL_FOR_LABEL_CONTROLLER + ID, expectedLabel.getId())
+        final MockHttpServletRequestBuilder request = put("/api/labels/{id}", expectedLabel.getId())
                 .content(toJson(TEST_LABEL_DTO_2))
                 .contentType(MediaType.APPLICATION_JSON);
 
@@ -122,11 +123,11 @@ public class TestLabelController {
 
     @Test
     public void testUpdateLabelNegative() throws Exception {
-        utils.regLabelPositive(TEST_LABEL_DTO);
+        regLabelPositive(TEST_LABEL_DTO);
 
         final Label expectedLabel = labelRepository.findAll().get(0);
 
-        final MockHttpServletRequestBuilder request = put(BASE_URL_FOR_LABEL_CONTROLLER + ID, expectedLabel.getId())
+        final MockHttpServletRequestBuilder request = put("/api/labels/{id}", expectedLabel.getId())
                 .content(toJson(TEST_LABEL_DTO_2))
                 .contentType(MediaType.APPLICATION_JSON);
 
@@ -142,19 +143,36 @@ public class TestLabelController {
     @Test
     public void testDeleteLabelPositive() throws Exception {
         assertThat(labelRepository.count()).isEqualTo(0);
-        utils.regLabelPositive(TEST_LABEL_DTO);
+        regLabelPositive(TEST_LABEL_DTO);
         assertThat(labelRepository.count()).isEqualTo(1);
 
         final Label labelToDelete = labelRepository.findAll().get(0);
 
         final Long idLabelToDelete = labelToDelete.getId();
 
-        utils.perform(delete(BASE_URL_FOR_LABEL_CONTROLLER + ID, idLabelToDelete), TEST_USERNAME)
+        utils.perform(delete("/api/labels/{id}", idLabelToDelete), TEST_USERNAME)
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse();
 
         assertThat(labelRepository.count()).isEqualTo(0);
 
+    }
+
+
+    private ResultActions regLabelPositive(final LabelDto labelDto) throws Exception {
+        final MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .post("/api/labels")
+                .content(toJson(labelDto))
+                .contentType(MediaType.APPLICATION_JSON);
+        return utils.perform(request, AppConstants.TEST_USERNAME);
+    }
+
+    private ResultActions regLabelNegative() throws Exception {
+        final MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .post("/api/labels")
+                .content(toJson(TestLabelController.TEST_LABEL_DTO))
+                .contentType(MediaType.APPLICATION_JSON);
+        return utils.perform(request);
     }
 }

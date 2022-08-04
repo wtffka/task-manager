@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,7 +29,7 @@ public class TestTaskStatusesController {
 
     private final TaskStatusRepository taskStatusRepository;
 
-    private Utils utils;
+    private final Utils utils;
 
     @Autowired
     public TestTaskStatusesController(TaskStatusRepository taskStatusRepository, Utils utils) {
@@ -44,13 +45,14 @@ public class TestTaskStatusesController {
     public void getTaskStatus() throws Exception {
         assertThat(taskStatusRepository.count()).isEqualTo(0);
         utils.regDefaultUser();
-        utils.regTaskStatus(TASK_STATUS_DTO_TEST);
+        regTaskStatus(TASK_STATUS_DTO_TEST);
         assertThat(taskStatusRepository.count()).isEqualTo(1);
         TaskStatus expectedTaskStatus = taskStatusRepository.findAll().get(0);
 
         utils.perform(
-                MockMvcRequestBuilders.get(AppConstants.BASE_URL_FOR_TASK_STATUSES_CONTROLLER
-                        + AppConstants.ID, expectedTaskStatus.getId()), AppConstants.TEST_USERNAME)
+                MockMvcRequestBuilders.get("/api/statuses/{id}",
+                        expectedTaskStatus.getId()),
+                        AppConstants.TEST_USERNAME)
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse();
@@ -62,15 +64,15 @@ public class TestTaskStatusesController {
     public void getTaskStatuses() throws Exception {
         assertThat(taskStatusRepository.count()).isEqualTo(0);
         utils.regDefaultUser();
-        utils.regTaskStatus(TASK_STATUS_DTO_TEST);
-        utils.regTaskStatus(TASK_STATUS_DTO_TEST_2);
+        regTaskStatus(TASK_STATUS_DTO_TEST);
+        regTaskStatus(TASK_STATUS_DTO_TEST_2);
         assertThat(taskStatusRepository.count()).isEqualTo(2);
 
         TaskStatus expectedStatus1 = taskStatusRepository.findAll().get(0);
         TaskStatus expectedStatus2 = taskStatusRepository.findAll().get(1);
 
         utils.perform(
-                MockMvcRequestBuilders.get(AppConstants.BASE_URL_FOR_TASK_STATUSES_CONTROLLER),
+                MockMvcRequestBuilders.get("/api/statuses"),
                         AppConstants.TEST_USERNAME)
                 .andExpect(status().isOk())
                 .andReturn()
@@ -84,7 +86,7 @@ public class TestTaskStatusesController {
     public void registrationTaskStatusPositive() throws Exception {
         assertThat(taskStatusRepository.count()).isEqualTo(0);
         utils.regDefaultUser();
-        utils.regTaskStatus(TASK_STATUS_DTO_TEST);
+        regTaskStatus(TASK_STATUS_DTO_TEST);
         assertThat(taskStatusRepository.count()).isEqualTo(1);
         Assertions.assertThat(taskStatusRepository.findAll()
                 .get(0).getName()).isEqualTo(TASK_STATUS_DTO_TEST.getName());
@@ -94,7 +96,7 @@ public class TestTaskStatusesController {
     public void registrationTaskStatusNegative() throws Exception {
         assertThat(taskStatusRepository.count()).isEqualTo(0);
         utils.regDefaultUser();
-        utils.regTaskStatusIncorrect(TASK_STATUS_DTO_TEST);
+        regTaskStatusIncorrect();
         assertThat(taskStatusRepository.count()).isEqualTo(0);
     }
 
@@ -102,12 +104,12 @@ public class TestTaskStatusesController {
     public void updateTaskStatusPositive() throws Exception {
         assertThat(taskStatusRepository.count()).isEqualTo(0);
         utils.regDefaultUser();
-        utils.regTaskStatus(TASK_STATUS_DTO_TEST);
+        regTaskStatus(TASK_STATUS_DTO_TEST);
         assertThat(taskStatusRepository.count()).isEqualTo(1);
         TaskStatus expectedTaskStatus = taskStatusRepository.findAll().get(0);
 
         final MockHttpServletRequestBuilder request = MockMvcRequestBuilders
-                .put(AppConstants.BASE_URL_FOR_TASK_STATUSES_CONTROLLER + AppConstants.ID,
+                .put("/api/statuses/{id}",
                         expectedTaskStatus.getId())
                         .content(toJson(TASK_STATUS_DTO_UPDATE_TEST)).contentType(MediaType.APPLICATION_JSON);
 
@@ -125,12 +127,12 @@ public class TestTaskStatusesController {
     public void updateTaskStatusNegative() throws Exception {
         assertThat(taskStatusRepository.count()).isEqualTo(0);
         utils.regDefaultUser();
-        utils.regTaskStatus(TASK_STATUS_DTO_TEST);
+        regTaskStatus(TASK_STATUS_DTO_TEST);
         assertThat(taskStatusRepository.count()).isEqualTo(1);
         TaskStatus expectedTaskStatus = taskStatusRepository.findAll().get(0);
 
         final MockHttpServletRequestBuilder request = MockMvcRequestBuilders
-                .put(AppConstants.BASE_URL_FOR_TASK_STATUSES_CONTROLLER + AppConstants.ID,
+                .put("/api/statuses/{id}",
                 expectedTaskStatus.getId())
                 .content(toJson(TASK_STATUS_DTO_UPDATE_TEST)).contentType(MediaType.APPLICATION_JSON);
 
@@ -144,18 +146,38 @@ public class TestTaskStatusesController {
     public void deleteTaskStatusTest() throws Exception {
         assertThat(taskStatusRepository.count()).isEqualTo(0);
         utils.regDefaultUser();
-        utils.regTaskStatus(TASK_STATUS_DTO_TEST);
+        regTaskStatus(TASK_STATUS_DTO_TEST);
         assertThat(taskStatusRepository.count()).isEqualTo(1);
 
         TaskStatus expectedTaskStatus = taskStatusRepository.findAll().get(0);
 
         utils.perform(MockMvcRequestBuilders
-                .delete(AppConstants.BASE_URL_FOR_TASK_STATUSES_CONTROLLER + AppConstants.ID,
+                .delete("/api/statuses/{id}",
                 expectedTaskStatus.getId()), AppConstants.TEST_USERNAME)
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse();
 
         assertThat(taskStatusRepository.count()).isEqualTo(0);
+    }
+
+
+    private ResultActions regTaskStatus(final TaskStatusDto taskStatusDto) throws Exception {
+        final MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .post("/api/statuses")
+                .content(toJson(taskStatusDto))
+                .contentType(MediaType.APPLICATION_JSON);
+
+        return utils.perform(request, AppConstants.TEST_USERNAME);
+    }
+
+    private ResultActions regTaskStatusIncorrect() throws Exception {
+        final MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .post("/api/statuses")
+                .content(toJson(TestTaskStatusesController.TASK_STATUS_DTO_TEST))
+                .contentType(MediaType.APPLICATION_JSON);
+
+        return utils.perform(request);
+
     }
 }
