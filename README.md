@@ -12,6 +12,6 @@
 - Liquibase
 - PostgreSQL
 
-Deployment App on Heroku : https://java-project-lvl-5.herokuapp.com/welcome
+Deployment App on Heroku : https://java-project-lvl-5.herokuapp.com
 
 Swagger Documentation available on: https://java-project-lvl-5.herokuapp.com/swagger.html
