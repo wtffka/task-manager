@@ -32,19 +32,16 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public Task createTask(TaskDto taskDto) {
-        return taskRepository.save(fromTaskDto(taskDto));
+        Task newTask = new Task();
+        return taskRepository.save(fromTaskDto(newTask, taskDto));
     }
 
     @Override
     public Task updateTask(TaskDto taskDto, Long id) {
         Task taskToUpdate = taskRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Task with that id not found"));
-        Task updatedTask = fromTaskDto(taskDto);
 
-        updatedTask.setId(taskToUpdate.getId());
-        updatedTask.setCreatedAt(taskToUpdate.getCreatedAt());
-
-        return taskRepository.save(updatedTask);
+        return taskRepository.save(fromTaskDto(taskToUpdate, taskDto));
     }
 
     @Override
@@ -56,8 +53,7 @@ public class TaskServiceImpl implements TaskService {
         }
     }
 
-    private Task fromTaskDto(TaskDto taskDto) {
-        Task task = new Task();
+    private Task fromTaskDto(Task task, TaskDto taskDto) {
         final User user = userService.getCurrentUser();
 
         final TaskStatus taskStatus = Optional.ofNullable(taskDto.getTaskStatusId())
@@ -68,18 +64,19 @@ public class TaskServiceImpl implements TaskService {
                 .map(User::new)
                 .orElse(null);
 
+        final Set<Label> setOfLabels = getSetOfLabels(taskDto.getLabelIds());
 
         task.setTaskStatus(taskStatus);
         task.setName(taskDto.getName());
         task.setAuthor(user);
         task.setDescription(taskDto.getDescription());
-        task.setLabels(setLabelList(taskDto.getLabelIds()));
+        task.setLabels(setOfLabels);
         task.setExecutor(executor);
 
         return task;
     }
 
-    private Set<Label> setLabelList(Set<Long> labelIds) {
+    private Set<Label> getSetOfLabels(Set<Long> labelIds) {
 
         if (labelIds == null) {
             return null;

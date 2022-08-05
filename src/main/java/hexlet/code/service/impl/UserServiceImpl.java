@@ -31,16 +31,14 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public User createNewUser(UserDto userDto) {
-        return userRepository.save(fromUserDto(userDto));
+        User newUser = new User();
+        return userRepository.save(fromUserDto(newUser, userDto));
     }
 
     @Override
     public User updateUser(UserDto userDto, Long id) {
         final User userToUpdate = userRepository.findById(id).orElseThrow(NoSuchElementException::new);
-        User updatedUser = fromUserDto(userDto);
-        updatedUser.setId(userToUpdate.getId());
-        updatedUser.setCreatedAt(userToUpdate.getCreatedAt());
-        return userRepository.save(updatedUser);
+        return userRepository.save(fromUserDto(userToUpdate, userDto));
     }
 
     @Override
@@ -60,8 +58,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User with that username not found"));
     }
 
-    private User fromUserDto(UserDto userDto) {
-        User user = new User();
+    private User fromUserDto(User user, UserDto userDto) {
         user.setEmail(userDto.getEmail());
         user.setFirstName(userDto.getFirstName());
         user.setLastName(userDto.getLastName());

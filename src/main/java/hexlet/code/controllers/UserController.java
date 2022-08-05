@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,6 +34,10 @@ public class UserController {
     private final UserRepository userRepository;
 
     private final UserServiceImpl userService;
+
+    private static final String ONLY_OWNER_BY_ID = """
+            @userRepository.findById(#id).get().getEmail() == authentication.getName()
+        """;
 
     @Autowired
     public UserController(UserRepository userRepository, UserServiceImpl userService) {
@@ -85,6 +90,7 @@ public class UserController {
             @ApiResponse(responseCode = "404", description = "User not found"),
             @ApiResponse(responseCode = "422", description = "Data validation failed")
     })
+    @PreAuthorize(ONLY_OWNER_BY_ID)
     public User updateUser(@Parameter(description = "Data to update user", required = true)
                            @RequestBody @Valid UserDto userDto,
                            @Parameter(description = "Id of User to be updated", required = true)
@@ -99,6 +105,7 @@ public class UserController {
             @ApiResponse(responseCode = "403", description = "Operation available only for owner"),
             @ApiResponse(responseCode = "404", description = "User not found")
     })
+    @PreAuthorize(ONLY_OWNER_BY_ID)
     public void deleteUser(@Parameter(description = "Id of User to be deleted", required = true)
                            @PathVariable Long id) {
         userService.deleteUser(id);
